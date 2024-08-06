@@ -22,7 +22,7 @@ app.use("/api/swagger", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use("/api", jokeRoutes);
 app.use("/api", authRoutes);
-console.log("test");
+
 const PORT = process.env.SERVER_PORT || 3001;
 
 app.listen(PORT, () => {
