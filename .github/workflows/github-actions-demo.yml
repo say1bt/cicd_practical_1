@@ -1,0 +1,54 @@
+name: GitHub Actions Demo
+run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
+
+on: 
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: [ubuntu-latest]
+
+    steps:
+      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
+      - run: echo "🐧 This job is now running on a ${{ runner.os }}"
+      
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Login to Dockerhub
+        run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+        
+      - name: Build Docker image
+        run: docker build -t say1bt/nodejs-app .
+        
+      - name: Publish Docker image to docker hub
+        run: docker push say1bt/nodejs-app:latest
+        
+      - name: Deploy application
+        env:
+          SERVER_PORT: ${{ secrets.SERVER_PORT }}
+          DB_USER: ${{ secrets.DB_USER }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          MONGO_DB_USERNAME: ${{ secrets.MONGO_DB_USERNAME }}
+          MONGO_DB_PASSWORD: ${{ secrets.MONGO_DB_PASSWORD }}
+          MONGO_DB_HOST: ${{ secrets.MONGO_DB_HOST }}
+          MONGO_DB_DATABASE_NAME: ${{ secrets.MONGO_DB_DATABASE_NAME }}
+          LOCALHOST_BASE_URL: ${{ secrets.LOCALHOST_BASE_URL }}
+
+
+  deploy:
+    needs: build
+    runs-on: [aws-ec2]
+    steps:
+      - name: Pull image from docker hub
+        run: docker pull say1bt/nodejs-app:latest
+        
+      - name: Delete old container
+        run: docker rm -f nodejs-app-container
+        
+      - name: Run docker container
+        run: docker run -d -p 3001:3001 -name nodejs-app-container say1bt/nodejs-app
+    
+        
+        
