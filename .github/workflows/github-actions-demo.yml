@@ -10,33 +10,40 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: Login to Dockerhub
+
+      - name: Login to Docker Hub
         run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+
       - name: Build Docker image
-        run: docker build -t websoftdev2017/nodejs-app .  
-      - name: Publish Docker image to docker hub
-        run: docker push actions/checkout@v2/nodejs-app:latest
+        run: docker build -t websoftdev2017/nodejs-app:latest .
+
+      - name: Publish Docker image to Docker Hub
+        run: docker push websoftdev2017/nodejs-app:latest
+
       - name: Deploy application
         run: |
           touch .env
-          echo "SERVER_PORT=${{ secrets.SERVER_PORT }}" > .env
-          echo "DB_USER=${{ secrets.DB_USER }}" > .env
-          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" > .env
-          echo "MONGO_DB_USERNAME=${{ secrets.MONGO_DB_USERNAME }}" > .env
-          echo "MONGO_DB_PASSWORD=${{ secrets.MONGO_DB_PASSWORD }}" > .env
-          echo "MONGO_DB_HOST=${{ secrets.MONGO_DB_HOST }}" > .env
-          echo "MONGO_DB_DATABASE_NAME=${{ secrets.MONGO_DB_DATABASE_NAME }}" > .env
-          echo "LOCALHOST_BASE_URL=${{ secrets.LOCALHOST_BASE_URL }}" > .env
+          echo "SERVER_PORT=${{ secrets.SERVER_PORT }}" >> .env
+          echo "DB_USER=${{ secrets.DB_USER }}" >> .env
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+          echo "MONGO_DB_USERNAME=${{ secrets.MONGO_DB_USERNAME }}" >> .env
+          echo "MONGO_DB_PASSWORD=${{ secrets.MONGO_DB_PASSWORD }}" >> .env
+          echo "MONGO_DB_HOST=${{ secrets.MONGO_DB_HOST }}" >> .env
+          echo "MONGO_DB_DATABASE_NAME=${{ secrets.MONGO_DB_DATABASE_NAME }}" >> .env
+          echo "LOCALHOST_BASE_URL=${{ secrets.LOCALHOST_BASE_URL }}" >> .env
 
   deploy:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: Login to Dockerhub
+      - name: Login to Docker Hub
         run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-      - name: Pull image from docker hub
+
+      - name: Pull image from Docker Hub
         run: docker pull websoftdev2017/nodejs-app:latest
+
       - name: Delete old container
         run: docker rm -f nodejs-app-container || true
-      - name: Run docker container
-        run: docker run -d -p 3001:3001 --env-file .env --name nodejs-app-container websoftdev2017/nodejs-app
+
+      - name: Run Docker container
+        run: docker run -d -p 3001:3001 --env-file .env --name nodejs-app-container websoftdev2017/nodejs-app:latest
