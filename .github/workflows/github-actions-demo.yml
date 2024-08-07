@@ -39,4 +39,4 @@ jobs:
       - name: Delete old container
         run: docker rm -f nodejs-app-container || true
       - name: Run docker container
-        run: docker run -d -p 3001:3001 --env-file .env --name nodejs-app-container actions/checkout@v2/nodejs-app
+        run: docker run -d -p 3001:3001 --env-file .env --name nodejs-app-container websoftdev2017/nodejs-app
