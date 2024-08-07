@@ -15,7 +15,7 @@ jobs:
       - name: Build Docker image
         run: docker build -t websoftdev2017/nodejs-app .  
       - name: Publish Docker image to docker hub
-        run: docker push say1bt/nodejs-app:latest
+        run: docker push actions/checkout@v2/nodejs-app:latest
       - name: Deploy application
         run: |
           touch .env
@@ -39,4 +39,4 @@ jobs:
       - name: Delete old container
         run: docker rm -f nodejs-app-container || true
       - name: Run docker container
-        run: docker run -d -p 3001:3001 --env-file .env --name nodejs-app-container say1bt/nodejs-app
+        run: docker run -d -p 3001:3001 --env-file .env --name nodejs-app-container actions/checkout@v2/nodejs-app
