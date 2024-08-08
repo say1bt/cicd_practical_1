@@ -12,7 +12,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Login to Docker Hub
-        run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
       - name: Build Docker image
         run: docker build -t websoftdev2017/nodejs-app:latest .
@@ -20,7 +20,17 @@ jobs:
       - name: Publish Docker image to Docker Hub
         run: docker push websoftdev2017/nodejs-app:latest
 
-      - name: Deploy application
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Login to Docker Hub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      - name: Pull image from Docker Hub
+        run: docker pull websoftdev2017/nodejs-app:latest
+
+      - name: Create .env file
         run: |
           touch .env
           echo "SERVER_PORT=${{ secrets.SERVER_PORT }}" >> .env
@@ -31,16 +41,6 @@ jobs:
           echo "MONGO_DB_HOST=${{ secrets.MONGO_DB_HOST }}" >> .env
           echo "MONGO_DB_DATABASE_NAME=${{ secrets.MONGO_DB_DATABASE_NAME }}" >> .env
           echo "LOCALHOST_BASE_URL=${{ secrets.LOCALHOST_BASE_URL }}" >> .env
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Login to Docker Hub
-        run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: Pull image from Docker Hub
-        run: docker pull websoftdev2017/nodejs-app:latest
 
       - name: Delete old container
         run: docker rm -f nodejs-app-container || true
